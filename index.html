@@ -457,6 +457,8 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
       margin-top: 14px;
     }
 
+    .answer-feedback { min-width: 0; }
+
     .feedback {
       min-height: 24px;
       margin: 0;
@@ -467,6 +469,66 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
 
     .feedback.success { color: var(--green); }
     .feedback.try-again { color: var(--red); }
+
+    .feedback-row.has-explanation {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .feedback-row.has-explanation .next-button { align-self: flex-end; }
+
+    .explanation {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      margin-top: 11px;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--surface-raised);
+    }
+
+    .explanation[hidden] { display: none; }
+
+    .explanation-icon {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      place-items: center;
+      color: var(--accent);
+    }
+
+    .explanation-icon svg { width: 32px; height: 32px; }
+
+    .explanation.is-visible .explanation-icon {
+      animation: bulb-ignite 600ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .explanation-label {
+      display: block;
+      margin: 0 0 2px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 740;
+    }
+
+    .explanation-text {
+      margin: 0;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @keyframes bulb-ignite {
+      0% { opacity: .65; transform: scale(.9); }
+      55% {
+        opacity: 1;
+        transform: scale(1.08);
+        filter: drop-shadow(0 3px 5px color-mix(in srgb, var(--sun) 65%, transparent));
+      }
+      100% { opacity: 1; transform: scale(1); filter: none; }
+    }
 
     .next-button, .restart-button {
       display: inline-flex;
@@ -597,18 +659,6 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
 
     .results[hidden] { display: none; }
 
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
     @media (max-width: 480px) {
       body { padding: 25px 15px 24px; }
       .masthead { margin-bottom: 23px; }
@@ -635,7 +685,8 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
     @media (prefers-reduced-motion: reduce) {
       body::before,
       .results.is-celebrating .confetti,
-      .results.is-celebrating .result-emoji {
+      .results.is-celebrating .result-emoji,
+      .explanation-icon {
         animation: none;
       }
 
@@ -713,7 +764,22 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
       <h2 class="question" id="question" tabindex="-1"></h2>
       <div class="answers" id="answers"></div>
       <div class="feedback-row">
-        <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+        <div class="answer-feedback" role="status" aria-live="polite" aria-atomic="true">
+          <p class="feedback" id="feedback"></p>
+          <div class="explanation" id="explanation" hidden>
+            <span class="explanation-icon" aria-hidden="true">
+              <svg viewBox="0 0 40 40" fill="none" focusable="false">
+                <path d="M20 5.5a10 10 0 0 0-6 18c1.2.8 2 2.1 2 3.5h8c0-1.4.8-2.7 2-3.5a10 10 0 0 0-6-18Z" fill="var(--sun)" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M17 30h6m-5.2 3h4.4m-3.5 3h2.6M20 1v2m-12 9 2 1m20-1-2 1M5 21h3m24 0h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M17.5 20a3 3 0 0 1 5 0v2.5h-5V20Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div>
+              <span class="explanation-label">Why?</span>
+              <p class="explanation-text" id="explanation-text"></p>
+            </div>
+          </div>
+        </div>
         <button class="next-button" id="next" type="button" hidden>
           <span>Next question</span><span aria-hidden="true">→</span>
         </button>
@@ -738,7 +804,6 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
       </button>
     </section>
     <p class="footer-note" id="footer-note">One small step for your brain. A giant leap through space.</p>
-    <p class="sr-only" id="announcement" aria-live="polite"></p>
   </main>
 
   <script>
@@ -747,52 +812,62 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
         {
           prompt: "Which planet is known as the Red Planet?",
           choices: ["Venus", "Mars", "Jupiter", "Mercury"],
-          answer: 1
+          answer: 1,
+          explanation: "Iron-rich dust and rocks on Mars's surface oxidize, giving the planet its rusty red color."
         },
         {
           prompt: "What was the first human-made object to reach space?",
           choices: ["Sputnik 1", "V-2 rocket", "Apollo 11", "Voyager 1"],
-          answer: 1
+          answer: 1,
+          explanation: "A V-2 rocket crossed into space in 1944, years before Sputnik became the first artificial satellite to orbit Earth."
         },
         {
           prompt: "Which planet has the most prominent ring system?",
           choices: ["Neptune", "Saturn", "Uranus", "Jupiter"],
-          answer: 1
+          answer: 1,
+          explanation: "Saturn's broad, bright rings are made mostly of water ice, with pieces ranging from dust to mountain-sized chunks."
         },
         {
           prompt: "What is the name of the galaxy we live in?",
           choices: ["Andromeda", "Whirlpool", "Milky Way", "Sombrero"],
-          answer: 2
+          answer: 2,
+          explanation: "Our Solar System sits in the Milky Way, a barred spiral galaxy containing hundreds of billions of stars."
         },
         {
           prompt: "Who was the first person to walk on the Moon?",
           choices: ["Yuri Gagarin", "Buzz Aldrin", "Neil Armstrong", "Michael Collins"],
-          answer: 2
+          answer: 2,
+          explanation: "Neil Armstrong took the first steps on the Moon during Apollo 11 in July 1969; Buzz Aldrin followed shortly after."
         },
         {
           prompt: "What do astronauts wear to protect themselves in space?",
           choices: ["Pressure suit", "Flight jacket", "Thermal blanket", "Parachute suit"],
-          answer: 0
+          answer: 0,
+          explanation: "A pressure suit supplies oxygen and helps protect astronauts from the vacuum and temperature extremes of space."
         },
         {
           prompt: "Which is the largest planet in our solar system?",
           choices: ["Saturn", "Earth", "Neptune", "Jupiter"],
-          answer: 3
+          answer: 3,
+          explanation: "Jupiter is so large that more than 1,300 Earths could fit inside it by volume."
         },
         {
           prompt: "What force keeps planets in orbit around the Sun?",
           choices: ["Magnetism", "Gravity", "Friction", "Solar wind"],
-          answer: 1
+          answer: 1,
+          explanation: "The Sun's gravity continually bends each planet's forward motion, keeping it traveling around the Sun."
         },
         {
           prompt: "Which spacecraft sent back close-up images of Pluto in 2015?",
           choices: ["Cassini", "Juno", "New Horizons", "Pioneer 10"],
-          answer: 2
+          answer: 2,
+          explanation: "New Horizons flew past Pluto in 2015 and sent back the first detailed images of its surface."
         },
         {
           prompt: "What is the closest star to Earth?",
           choices: ["Proxima Centauri", "Sirius", "The Sun", "Polaris"],
-          answer: 2
+          answer: 2,
+          explanation: "The Sun is our nearest star, about 150 million kilometers away; even the next-nearest stars are much farther."
         }
       ];
 
@@ -803,9 +878,11 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
       const progressEl = document.getElementById("progress");
       const answersEl = document.getElementById("answers");
       const feedbackEl = document.getElementById("feedback");
+      const feedbackRow = document.querySelector(".feedback-row");
+      const explanationEl = document.getElementById("explanation");
+      const explanationTextEl = document.getElementById("explanation-text");
       const scoreEl = document.getElementById("score");
       const nextButton = document.getElementById("next");
-      const announcement = document.getElementById("announcement");
       const footerNote = document.getElementById("footer-note");
       let questions = [];
       let questionIndex = 0;
@@ -854,7 +931,9 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
         questionEl.textContent = current.prompt;
         feedbackEl.textContent = "";
         feedbackEl.className = "feedback";
-        announcement.textContent = "";
+        feedbackRow.classList.remove("has-explanation");
+        explanationEl.hidden = true;
+        explanationEl.classList.remove("is-visible");
         nextButton.hidden = true;
         nextButton.querySelector("span").textContent =
           questionIndex === questions.length - 1 ? "See my results" : "Next question";
@@ -892,6 +971,10 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
           feedbackEl.textContent = `Not quite — the answer is ${current.choices[current.answer]}.`;
           feedbackEl.classList.add("try-again");
         }
+        explanationTextEl.textContent = current.explanation;
+        explanationEl.hidden = false;
+        explanationEl.classList.add("is-visible");
+        feedbackRow.classList.add("has-explanation");
         answersEl.querySelectorAll(".answer").forEach((button) => {
           const index = Number(button.dataset.index);
           button.disabled = true;
@@ -901,7 +984,6 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
         });
         nextButton.hidden = false;
         renderProgress();
-        announcement.textContent = isCorrect ? "Correct answer." : `Incorrect. The correct answer is ${current.choices[current.answer]}.`;
         nextButton.focus();
       }
 
