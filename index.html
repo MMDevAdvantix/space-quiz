@@ -743,7 +743,7 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
 
   <script>
     (() => {
-      const questions = [
+      const questionBank = [
         {
           prompt: "Which planet is known as the Red Planet?",
           choices: ["Venus", "Mars", "Jupiter", "Mercury"],
@@ -807,9 +807,32 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
       const nextButton = document.getElementById("next");
       const announcement = document.getElementById("announcement");
       const footerNote = document.getElementById("footer-note");
+      let questions = [];
       let questionIndex = 0;
       let score = 0;
       let answered = false;
+
+      function shuffleQuestions(items) {
+        const shuffled = [...items];
+        for (let index = shuffled.length - 1; index > 0; index -= 1) {
+          const randomIndex = Math.floor(Math.random() * (index + 1));
+          [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+        }
+        return shuffled;
+      }
+
+      function startNewRun() {
+        questions = shuffleQuestions(questionBank);
+        questionIndex = 0;
+        score = 0;
+        answered = false;
+        scoreEl.textContent = "0";
+        results.hidden = true;
+        quiz.hidden = false;
+        footerNote.hidden = false;
+        renderQuestion();
+        questionEl.focus();
+      }
 
       function renderProgress() {
         progressEl.replaceChildren();
@@ -927,17 +950,10 @@ FORM: Experience, first direction; a compact field-log quiz staged like a playfu
       });
 
       document.getElementById("restart").addEventListener("click", () => {
-        questionIndex = 0;
-        score = 0;
-        scoreEl.textContent = "0";
-        results.hidden = true;
-        quiz.hidden = false;
-        footerNote.hidden = false;
-        renderQuestion();
-        questionEl.focus();
+        startNewRun();
       });
 
-      renderQuestion();
+      startNewRun();
     })();
   </script>
 </body>
